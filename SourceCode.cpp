@@ -7,7 +7,7 @@ void readData(std::istream &input,
 	      int &numOfBuses,
 	      int &capacity,
 		  int &numOfPassengers,
-		  std::vector<short> &volume) {
+		  std::vector<int> &volume) {
 	input >> numOfBuses >> capacity >> numOfPassengers;
 	volume.resize(numOfPassengers);
 	for (int i = 0; i < numOfPassengers; ++i) {
@@ -15,8 +15,8 @@ void readData(std::istream &input,
 	}
 }
 
-void fillFirstDynamicLevel(std::vector<std::vector<std::vector<short>>> &table,
-	                  std::vector<short> &volume,
+void fillFirstDynamicLevel(std::vector<std::vector<std::vector<int>>> &table,
+	                  std::vector<int> &volume,
 					  int &capacity,
 					  int &numOfPassengers) {
 	for (int pass_inx = 1; pass_inx <= numOfPassengers; ++pass_inx) {
@@ -25,14 +25,14 @@ void fillFirstDynamicLevel(std::vector<std::vector<std::vector<short>>> &table,
 				table[0][pass_inx][k - 1]);
 			if (k >= volume[pass_inx - 1]) {
 				table[0][pass_inx][k] = std::max(table[0][pass_inx][k],
-					(short)(1 + table[0][pass_inx - 1][k - volume[pass_inx - 1]]));
+					(int)(1 + table[0][pass_inx - 1][k - volume[pass_inx - 1]]));
 			}
 		}
 	}
 }
 
-void fillAllDynamic(std::vector<std::vector<std::vector<short>>> &table,
-					std::vector<short> &volume,
+void fillAllDynamic(std::vector<std::vector<std::vector<int>>> &table,
+					std::vector<int> &volume,
 					int &numOfBuses,
 					int &capacity,
 					int &numOfPassengers) {
@@ -47,7 +47,7 @@ void fillAllDynamic(std::vector<std::vector<std::vector<short>>> &table,
 						table[bus_inx][pass_inx][k - 1]);
 					if (k >= volume[pass_inx - 1]) {
 						table[bus_inx][pass_inx][k] = std::max(table[bus_inx][pass_inx][k],
-							(short)(1 + table[bus_inx][pass_inx - 1][k - volume[pass_inx - 1]]));
+							(int)(1 + table[bus_inx][pass_inx - 1][k - volume[pass_inx - 1]]));
 					}
 				}
 			}
@@ -56,39 +56,33 @@ void fillAllDynamic(std::vector<std::vector<std::vector<short>>> &table,
 
 }
 
-short getResult(std::vector<std::vector<std::vector<short>>> &table,
-			  int &numOfBuses,
-	          int &capacity,
-	          int &numOfPassengers) {
+const int solve(std::vector<int> &volume,
+	int &numOfBuses,
+	int &capacity,
+	int &numOfPassengers) {
+	std::vector<std::vector<std::vector<int>>> table(
+		numOfBuses,
+		std::vector<std::vector<int>>(
+			numOfPassengers + 1,
+			std::vector<int>(capacity + 1, 0)));
+	fillFirstDynamicLevel(table, volume, capacity, numOfPassengers);
+	fillAllDynamic(table, volume, numOfBuses, capacity, numOfPassengers);
 	return table[numOfBuses - 1][numOfPassengers][capacity];
 }
 
-void writeResult(std::ostream &output, short result) {
+void writeResult(std::ostream &output, const int result) {
 	output << result;
 }
 
 int main() {
-    std::ifstream input("c.in");
+    std::ifstream input("input.txt");
 	int numOfBuses, capacity, numOfPassengers;
-	std::vector<short> volume;
-
+	std::vector<int> volume;
 	readData(input, numOfBuses, capacity, numOfPassengers, volume);
-    input.close();
 
-    std::vector<std::vector<std::vector<short>>> table(
-        numOfBuses,
-        std::vector<std::vector<short>>(
-        numOfPassengers + 1,
-        std::vector<short>(capacity + 1, 0)));
-
-	fillFirstDynamicLevel(table, volume, numOfBuses, capacity);
-	fillAllDynamic(table, volume, numOfBuses, capacity, numOfPassengers);
-    
-	short result = getResult(table, numOfBuses, capacity, numOfPassengers);
-    std::ofstream output("c.out");
-
+   	const int result = solve(volume, numOfBuses, capacity, numOfPassengers);
+	std::ofstream output("output.txt");
 	writeResult(output, result);
-    output.close();
 }
 
 
