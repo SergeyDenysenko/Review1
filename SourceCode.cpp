@@ -27,7 +27,7 @@ void fillFirstDynamicLevel(std::vector<std::vector<std::vector<int>>> &table,
 				table[0][pass_inx][k - 1]);
 			if (k >= volume[pass_inx - 1]) {
 				table[0][pass_inx][k] = std::max(table[0][pass_inx][k],
-					(1 + table[0][pass_inx - 1][k - volume[pass_inx - 1]]));
+					1 + table[0][pass_inx - 1][k - volume[pass_inx - 1]]);
 			}
 		}
 	}
